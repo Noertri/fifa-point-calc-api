@@ -5,7 +5,7 @@ from sqlalchemy import select, and_
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:karangasem@localhost/fifa_rankings"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///fifa_rankings.sqlite"
 db.init_app(app)
 
 
@@ -13,9 +13,9 @@ db.init_app(app)
 def get_ranking():
     if request.method == "GET":
         params = request.args
-        if 0 < len(params) <=2:
+        if 0 < len(params) <= 2:
             if country_code := params.get("countryCode", type=str):
-                select_stmt = select(MenRankingDb).where(MenRankingDb.country_code.__eq__(country_code.upper()))
+                select_stmt = select(MenRankingDb).where(MenRankingDb.country_code == country_code.upper())
                 items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
                 response = make_response(jsonify(rankingItems=items, lang="en"))
                 response.status_code = 200
