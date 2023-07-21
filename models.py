@@ -17,6 +17,7 @@ class MenRankingDb(db.Model):
 
     def asdict(self):
         return {
+            "periode": self.date,
             "countryCode": self.country_code,
             "name": self.name,
             "rank": self.rank,
