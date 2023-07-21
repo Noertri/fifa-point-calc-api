@@ -53,9 +53,10 @@ def get_ranking():
                     )
             )
             items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+        elif len(params) == 0:
+            select_stmt = select(MenRankingDb)
+            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
         else:
-            # select_stmt = select(MenRankingDb)
-            # items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
             items = []
             
         response = make_response(jsonify(rankingItems=items, lang="en"))
