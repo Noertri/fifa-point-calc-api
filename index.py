@@ -1,5 +1,5 @@
 import re
-from flask import Flask, jsonify, make_response, request
+from flask import Flask, jsonify, make_response, request, url_for, redirect
 from sqlalchemy import and_, select
 from config import Config
 from exts import db
@@ -9,6 +9,11 @@ from models import MenRankingDb
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return redirect(url_for("get_ranking"))
 
 
 @app.route("/api/ranking", methods=["GET"])
