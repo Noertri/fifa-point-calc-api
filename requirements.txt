@@ -1,2 +1,5 @@
-Flask>=2.2.3
-Flask-SQLAlchemy>=3.0.3
+Flask>=2.3.2
+flask-marshmallow>=0.15.0
+Flask-SQLAlchemy>=3.0.5
+marshmallow-sqlalchemy>=0.29.0
+mysql-connector-python>=8.1.0
