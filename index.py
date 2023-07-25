@@ -39,13 +39,13 @@ def get_ranking():
             select_stmt = select(men_ranking_db.c[:1]).where(men_ranking_db.c.name.like(f"%{country_name.title()}%"))
             items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 1 and periode and date_pattern.match(periode):
-            select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.date.__eq__(periode))
+            select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.periode.__eq__(periode))
             items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 2 and periode and country_code and date_pattern.match(periode):
             select_stmt = select(men_ranking_db.c[1:]).where(
                     and_(
                             men_ranking_db.c.country_code.__eq__(country_code.upper()),
-                            men_ranking_db.c.date.__eq__(periode)
+                            men_ranking_db.c.periode.__eq__(periode)
                     )
             )
             items = [item._asdict() for item in db.session.execute(select_stmt).all()]
@@ -53,7 +53,7 @@ def get_ranking():
             select_stmt = select(men_ranking_db.c[1:]).where(
                     and_(
                             men_ranking_db.c.name.like(f"%{country_name.title()}%"),
-                            men_ranking_db.c.date.__eq__(periode)
+                            men_ranking_db.c.periode.__eq__(periode)
                     )
             )
             items = [item._asdict() for item in db.session.execute(select_stmt).all()]
