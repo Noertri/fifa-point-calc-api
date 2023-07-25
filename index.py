@@ -1,14 +1,21 @@
 import re
 from flask import Flask, jsonify, make_response, request, url_for, redirect
 from sqlalchemy import and_, select
+from sqlalchemy.ext.automap import automap_base
 from config import Config
 from exts import db
-from models import MenRankingDb
+# from models import MenRankingDb
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+
+with app.app_context():
+    men_ranking_db = db.Table("men_ranking", db.metadata, autoload_with=db.engine)
+    # Base = automap_base()
+    # Base.prepare(autoload_with=db.engine)
+    # men_ranking_db = Base.classes.men_ranking
 
 
 @app.route("/men-ranking/", methods=["GET"])
@@ -26,41 +33,41 @@ def get_ranking():
         date_pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
         
         if len(params) == 1 and country_code:
-            select_stmt = select(MenRankingDb).where(MenRankingDb.country_code.__eq__(country_code.upper()))
-            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+            select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.country_code.__eq__(country_code.upper()))
+            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 1 and country_name:
-            select_stmt = select(MenRankingDb).where(MenRankingDb.name.like(f"%{country_name.title()}%"))
-            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+            select_stmt = select(men_ranking_db.c[:1]).where(men_ranking_db.c.name.like(f"%{country_name.title()}%"))
+            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 1 and periode and date_pattern.match(periode):
-            select_stmt = select(MenRankingDb).where(MenRankingDb.date.__eq__(periode))
-            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+            select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.date.__eq__(periode))
+            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 2 and periode and country_code and date_pattern.match(periode):
-            select_stmt = select(MenRankingDb).where(
+            select_stmt = select(men_ranking_db.c[1:]).where(
                     and_(
-                            MenRankingDb.country_code.__eq__(country_code.upper()),
-                            MenRankingDb.date.__eq__(periode)
+                            men_ranking_db.c.country_code.__eq__(country_code.upper()),
+                            men_ranking_db.c.date.__eq__(periode)
                     )
             )
-            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 2 and country_name and periode and date_pattern.match(periode):
-            select_stmt = select(MenRankingDb).where(
+            select_stmt = select(men_ranking_db.c[1:]).where(
                     and_(
-                            MenRankingDb.name.like(f"%{country_name.title()}%"),
-                            MenRankingDb.date.__eq__(periode)
+                            men_ranking_db.c.name.like(f"%{country_name.title()}%"),
+                            men_ranking_db.c.date.__eq__(periode)
                     )
             )
-            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 2 and country_name and country_code:
-            select_stmt = select(MenRankingDb).where(
+            select_stmt = select(men_ranking_db.c[1:]).where(
                     and_(
-                            MenRankingDb.country_code.__eq__(country_code.upper()),
-                            MenRankingDb.name.like(f"%{country_name.title()}%")
+                            men_ranking_db.c.country_code.__eq__(country_code.upper()),
+                            men_ranking_db.c.name.like(f"%{country_name.title()}%")
                     )
             )
-            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 0:
-            select_stmt = select(MenRankingDb)
-            items = [item.asdict() for item in db.session.execute(select_stmt).scalars()]
+            select_stmt = select(men_ranking_db.c[1:])
+            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         else:
             items = []
             
@@ -70,7 +77,7 @@ def get_ranking():
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
 
     app.run(host="0.0.0.0")
