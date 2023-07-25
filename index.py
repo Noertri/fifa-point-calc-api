@@ -11,12 +11,12 @@ app.config.from_object(Config)
 db.init_app(app)
 
 
-@app.route("/", methods=["GET"])
+@app.route("/men-ranking/", methods=["GET"])
 def home():
     return redirect(url_for("get_ranking"))
 
 
-@app.route("/api/ranking", methods=["GET"])
+@app.route("/men-ranking/api/rank", methods=["GET"])
 def get_ranking():
     if request.method == "GET":
         params = request.args
