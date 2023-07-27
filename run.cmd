@@ -1,2 +1,1 @@
-CD /D "D:\Python\fifa-ranking-api"
-"D:\Python\venvs\flask-env\Scripts\python.exe" "index.py"
+CD /D "D:\Python\fifa-point-calculator-api" & "D:\Python\venvs\flask-env\Scripts\python.exe" "index.py"
