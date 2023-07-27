@@ -13,17 +13,13 @@ db.init_app(app)
 
 with app.app_context():
     men_ranking_db = db.Table("men_ranking", db.metadata, autoload_with=db.engine)
-    # Base = automap_base()
-    # Base.prepare(autoload_with=db.engine)
-    # men_ranking_db = Base.classes.men_ranking
+
+# @app.route("/men-ranking/", methods=["GET"])
+# def home():
+#     return redirect(url_for("get_ranking"))
 
 
-@app.route("/men-ranking/", methods=["GET"])
-def home():
-    return redirect(url_for("get_ranking"))
-
-
-@app.route("/men-ranking/api/rank", methods=["GET"])
+@app.route("/fifa-point-calculator/api/data", methods=["GET"])
 def get_ranking():
     if request.method == "GET":
         params = request.args
@@ -36,7 +32,7 @@ def get_ranking():
             select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.country_code.__eq__(country_code.upper()))
             items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 1 and country_name:
-            select_stmt = select(men_ranking_db.c[:1]).where(men_ranking_db.c.name.like(f"%{country_name.title()}%"))
+            select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.name.like(f"%{country_name.title()}%"))
             items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         elif len(params) == 1 and periode and date_pattern.match(periode):
             select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.periode.__eq__(periode))
@@ -65,13 +61,10 @@ def get_ranking():
                     )
             )
             items = [item._asdict() for item in db.session.execute(select_stmt).all()]
-        elif len(params) == 0:
-            select_stmt = select(men_ranking_db.c[1:])
-            items = [item._asdict() for item in db.session.execute(select_stmt).all()]
         else:
             items = []
             
-        response = make_response(jsonify(rankingItems=items, lang="en"))
+        response = make_response(jsonify(dataItems=items))
         response.status_code = 200
         return response
 
@@ -80,4 +73,4 @@ if __name__ == "__main__":
     # with app.app_context():
     #     db.create_all()
 
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=True)
