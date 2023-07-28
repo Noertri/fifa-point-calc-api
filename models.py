@@ -6,7 +6,7 @@ from sqlalchemy import Integer, Float, Text
 class MenRankingDb(db.Model):
     __tablename__ = "men_ranking"
     id = mapped_column(Integer, primary_key=True, autoincrement=True)
-    date = mapped_column(Text)
+    periode = mapped_column(Text)
     country_code = mapped_column(Text)
     name = mapped_column(Text)
     rank = mapped_column(Integer)
