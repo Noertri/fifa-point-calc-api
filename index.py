@@ -28,6 +28,7 @@ def get_country_codes():
         items = []
 
     response = make_response(jsonify(dataItems=items))
+    response.headers.add("Access-Control-Allow-Origin", "*")
     response.status_code = 200
     return response
 
@@ -57,6 +58,7 @@ def get_ranking():
         items = []
         
     response = make_response(jsonify(dataItems=items))
+    respon.headers.add("Access-Control-Allow-Origin", "*")
     response.status_code = 200
     return response
 
