@@ -15,7 +15,7 @@ with app.app_context():
     men_ranking_db = db.Table("men_ranking", db.metadata, autoload_with=db.engine)
 
 
-@app.route("/fifa-point-calculator/api/countryCodeList", methods=["GET"])
+@app.route("/fifa-point-calculator/api/countryList", methods=["GET"])
 def get_country_codes():
     params = request.args
     periode = params.get("periode")
