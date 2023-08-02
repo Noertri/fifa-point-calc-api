@@ -38,6 +38,7 @@ def get_ranking():
     params = request.args
     country_code = params.get("countryCode")
     periode = params.get("periode")
+    country_name = params.get("name")
     date_pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
     
     if len(params) == 1 and country_code:
@@ -54,11 +55,19 @@ def get_ranking():
                 )
         )
         items = [item._asdict() for item in db.session.execute(select_stmt).all()]
+    elif len(params) == 2 and periode and country_name and date_pattern.match(periode):
+        select_stmt = select(men_ranking_db.c[1:]).where(
+                and_(
+                        men_ranking_db.c.name.like(f"%{country_name.title()}%"),
+                        men_ranking_db.c.periode.__eq__(periode)
+                )
+        )
+        items = [item._asdict() for item in db.session.execute(select_stmt).all()]
     else:
         items = []
         
     response = make_response(jsonify(dataItems=items))
-    respon.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Origin", "*")
     response.status_code = 200
     return response
 

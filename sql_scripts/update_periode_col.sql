@@ -1,0 +1,1 @@
+UPDATE men_ranking SET periode = '2023-06-29';
