@@ -33,7 +33,7 @@ def get_country_codes():
     return response
 
 
-@app.route("/fifa-point-calculator/api/data", methods=["GET"])
+@app.route("/fifa-point-calculator/api/ranking", methods=["GET"])
 def get_ranking():
     params = request.args
     country_code = params.get("countryCode")
