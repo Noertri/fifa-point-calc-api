@@ -22,7 +22,7 @@ def get_ranking():
     date_pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
     
     if len(params) == 1 and periode and date_pattern.match(periode):
-        select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.periode.__eq__(periode))
+        select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.periode.__eq__(periode)).order_by(asc(men_ranking_db.c.rank))
         items = [item._asdict() for item in db.session.execute(select_stmt).all()]
     elif len(params) == 2 and periode and country_code and date_pattern.match(periode):
         select_stmt = select(men_ranking_db.c[1:]).where(
