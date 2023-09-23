@@ -4,8 +4,6 @@ from sqlalchemy import and_, asc, select
 from config import Config
 from exts import db
 
-# from models import MenRankingDb
-
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -15,36 +13,15 @@ with app.app_context():
     men_ranking_db = db.Table("men_ranking", db.metadata, autoload_with=db.engine)
 
 
-@app.route("/fifa-point-calculator/api/countryList", methods=["GET"])
-def get_country_codes():
-    params = request.args
-    periode = params.get("periode")
-    date_pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
-
-    if len(params) == 1 and date_pattern.match(periode) and periode:
-        select_stmt = select(men_ranking_db.c.country_code, men_ranking_db.c.name).where(men_ranking_db.c.periode.__eq__(periode)).order_by(asc(men_ranking_db.c.country_code))
-        items = [item._asdict() for item in db.session.execute(select_stmt).all()]
-    else:
-        items = []
-
-    response = make_response(jsonify(dataItems=items))
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    response.status_code = 200
-    return response
-
-
 @app.route("/fifa-point-calculator/api/ranking", methods=["GET"])
 def get_ranking():
     params = request.args
     country_code = params.get("countryCode")
     periode = params.get("periode")
-    country_name = params.get("name")
+    country_name = params.get("countryName")
     date_pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
     
-    if len(params) == 1 and country_code:
-        select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.country_code.__eq__(country_code.upper()))
-        items = [item._asdict() for item in db.session.execute(select_stmt).all()]
-    elif len(params) == 1 and periode and date_pattern.match(periode):
+    if len(params) == 1 and periode and date_pattern.match(periode):
         select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.periode.__eq__(periode))
         items = [item._asdict() for item in db.session.execute(select_stmt).all()]
     elif len(params) == 2 and periode and country_code and date_pattern.match(periode):
@@ -73,7 +50,4 @@ def get_ranking():
 
 
 if __name__ == "__main__":
-    # with app.app_context():
-    #     db.create_all()
-
-    app.run()
+    app.run(debug=True, port=5502)
