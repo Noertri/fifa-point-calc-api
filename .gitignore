@@ -308,4 +308,5 @@ pyrightconfig.json
 sql_scripts/*
 *.bak
 logs/
+backup/
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,visualstudiocode
