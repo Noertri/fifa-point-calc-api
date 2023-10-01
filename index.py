@@ -1,60 +1,62 @@
 import re
 from flask import Flask, jsonify, make_response, request
-from sqlalchemy import and_, asc, select
 from config import Config
-from exts import db
+from exts import db, ma
+import sqlalchemy as sa
 from models import FIFACountryDb, MenRankingDb
+from serializer import MenRankingSchema
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
-
-with app.app_context():
-    # men_ranking_db = db.Table("men_ranking", db.metadata, autoload_with=db.engine)
-    # db.create_all()
-    select_stmt = select(FIFACountryDb.country_code, FIFACountryDb.country_name, MenRankingDb.current_points).select_from(MenRankingDb)
-    join_stmt = select_stmt.join(FIFACountryDb).where(FIFACountryDb.country_name.like("%br%"))
-
-    results = db.session.execute(join_stmt).all()
-    print(results)
+ma.init_app(app)
 
 
-# @app.route("/fifa-point-calculator/api/ranking", methods=["GET"])
-# def get_ranking():
-#     params = request.args
-#     country_code = params.get("countryCode")
-#     periode = params.get("periode")
-#     country_name = params.get("countryName")
-#     date_pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
-#
-#     if len(params) == 1 and periode and date_pattern.match(periode):
-#         select_stmt = select(men_ranking_db.c[1:]).where(men_ranking_db.c.periode.__eq__(periode)).order_by(asc(men_ranking_db.c.rank))
-#         items = [item._asdict() for item in db.session.execute(select_stmt).all()]
-#     elif len(params) == 2 and periode and country_code and date_pattern.match(periode):
-#         select_stmt = select(men_ranking_db.c[1:]).where(
-#                 and_(
-#                         men_ranking_db.c.country_code.__eq__(country_code.upper()),
-#                         men_ranking_db.c.periode.__eq__(periode)
-#                 )
-#         )
-#         items = [item._asdict() for item in db.session.execute(select_stmt).all()]
-#     elif len(params) == 2 and periode and country_name and date_pattern.match(periode):
-#         select_stmt = select(men_ranking_db.c[1:]).where(
-#                 and_(
-#                         men_ranking_db.c.name.like(f"%{country_name.title()}%"),
-#                         men_ranking_db.c.periode.__eq__(periode)
-#                 )
-#         )
-#         items = [item._asdict() for item in db.session.execute(select_stmt).all()]
-#     else:
-#         items = []
-#
-#     response = make_response(jsonify(dataItems=items))
-#     response.headers.add("Access-Control-Allow-Origin", "*")
-#     response.status_code = 200
-#     return response
+@app.route("/fifa-point-calculator/api/ranking", methods=["GET"])
+def get_ranking():
+    params = request.args.to_dict()
+    country_code = params.get("countryCode")
+    periode = params.get("periode")
+    country_name = params.get("countryName")
+    date_pattern = re.compile(r"\d\d\d\d-\d\d-\d\d")
+
+    if len(params) == 1 and periode and date_pattern.match(periode):
+        select_stmt = sa.select(FIFACountryDb)
+        join_stmt = select_stmt.join(MenRankingDb).where(MenRankingDb.periode == periode).order_by(sa.asc(MenRankingDb.current_rank))
+        results = db.session.execute(join_stmt).scalars().all()
+        country_schema = MenRankingSchema()
+        items = country_schema.dump(results, many=True)
+    elif len(params) == 2 and periode and date_pattern.match(periode) and country_name:
+        select_stmt = sa.select(FIFACountryDb)
+        join_stmt = select_stmt.join(MenRankingDb).where(
+                sa.and_(
+                        MenRankingDb.periode == periode,
+                        FIFACountryDb.country_name.like(f"%{country_name.lower()}%")
+                )
+        ).order_by(sa.asc(MenRankingDb.current_rank))
+        results = db.session.execute(join_stmt).scalars().all()
+        country_schema = MenRankingSchema()
+        items = country_schema.dump(results, many=True)
+    elif len(params) == 2 and periode and date_pattern.match(periode) and country_code:
+        select_stmt = sa.select(FIFACountryDb)
+        join_stmt = select_stmt.join(MenRankingDb).where(
+                sa.and_(
+                        MenRankingDb.periode == periode,
+                        FIFACountryDb.country_code.like(f"%{country_code.lower()}%")
+                )
+        ).order_by(sa.asc(MenRankingDb.current_rank))
+        results = db.session.execute(join_stmt).scalars().all()
+        country_schema = MenRankingSchema()
+        items = country_schema.dump(results, many=True)
+    else:
+        items = []
+        
+    response = make_response(jsonify(items))
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.status_code = 200
+    return response
 
 
-# if __name__ == "__main__":
-#     app.run()
+if __name__ == "__main__":
+    app.run()
