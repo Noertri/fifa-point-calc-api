@@ -1,1 +1,1 @@
-CD /D "D:\Python\fifa-point-calculator-api" & "D:\Python\venvs\flask-env\Scripts\python.exe" "index.py"
+"D:\Python\venvs\flask-env\Scripts\flask.exe" --app "index.py" run -p 5050 --debug
