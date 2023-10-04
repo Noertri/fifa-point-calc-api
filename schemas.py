@@ -20,6 +20,6 @@ class MenRankingSchema(ma.Schema):
 
 class RequestSchema(ma.Schema):
     periode = fields.String(required=True, validate=validate.Regexp(re.compile(r"\d{4}-\d{2}-\d{2}")))
-    country_code = fields.String(data_key="countryCode", validate=validate.Length(equal=3))
+    country_code = fields.String(data_key="countryCode")
     country_name = fields.String(data_key="countryName")
     country_zone = fields.String(data_key="zone")
