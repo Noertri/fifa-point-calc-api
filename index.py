@@ -13,7 +13,7 @@ db.init_app(app)
 ma.init_app(app)
 
 
-@app.route("/fifa-point-calculator/api/ranking", methods=["GET"])
+@app.route("/fifa-point-calculator/api/ranking/men", methods=["GET"])
 @request_validator(RequestSchema)
 def get_ranking():
     params = request.args.to_dict()
