@@ -19,7 +19,7 @@ class MenRankingSchema(ma.Schema):
 
 
 class RequestSchema(ma.Schema):
-    periode = fields.String(required=True, validate=validate.Regexp(re.compile(r"\d{4}-\d{2}-\d{2}")))
+    periode = fields.String(required=True, validate=validate.Regexp(re.compile(r"\d{4}-\d{2}-\d{2}"), error="String does not match expected pattern. Expected pattern is yyyy-mm-dd!!!"))
     country_code = fields.String(data_key="countryCode")
     country_name = fields.String(data_key="countryName")
     country_zone = fields.String(data_key="zone")
