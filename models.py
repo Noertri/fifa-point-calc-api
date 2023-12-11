@@ -22,4 +22,4 @@ class MenRankingDb(db.Model):
     prev_rank = mapped_column(Integer)
     current_points = mapped_column(Float)
     prev_points = mapped_column(Float)
-    # country = relationship("FIFACountryDb", back_populates="men_rank_data")
+    

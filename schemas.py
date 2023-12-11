@@ -4,10 +4,10 @@ import re
 
 
 class RankingSchema(ma.Schema):
-    currentPoints = fields.Float(attribute="current_points")
-    prevPoints = fields.Float(attribute="prev_points")
-    currentRank = fields.Integer(attribute="current_rank")
-    prevRank = fields.Integer(attribute="prev_rank")
+    currentPoints = fields.Float(attribute="current_points", allow_nan=True, allow_none=True)
+    prevPoints = fields.Float(attribute="prev_points", allow_nan=True, allow_none=True)
+    currentRank = fields.Integer(attribute="current_rank", allow_none=True, strict=True)
+    prevRank = fields.Integer(attribute="prev_rank", allow_none=True, strict=True)
     periode = fields.String(attribute="periode")
 
 
