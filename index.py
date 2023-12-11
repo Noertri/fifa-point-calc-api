@@ -5,7 +5,7 @@ from config import Config
 from decorators import request_validator
 from exts import db, ma
 from models import FIFACountryDb, MenRankingDb
-from schemas import MenRankingSchema, RequestSchema
+from schemas import RankingSchema, RequestSchema
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -23,13 +23,32 @@ def get_ranking():
     country_zone = params.get("zone")
 
     if len(params) == 1 and periode:
-        select_stmt = sa.select(FIFACountryDb)
-        join_stmt = select_stmt.join(MenRankingDb).where(MenRankingDb.periode == periode).order_by(sa.asc(MenRankingDb.current_rank))
-        results = db.session.execute(join_stmt).scalars().all()
-        country_schema = MenRankingSchema()
-        items = country_schema.dump(results, many=True)
+        select_stmt = sa.select(
+            FIFACountryDb.country_code,
+            FIFACountryDb.country_name,
+            FIFACountryDb.country_zone,
+            MenRankingDb.periode,
+            MenRankingDb.current_points,
+            MenRankingDb.prev_points,
+            MenRankingDb.current_rank,
+            MenRankingDb.prev_rank
+        ).select_from(FIFACountryDb)
+        join_stmt = select_stmt.join(MenRankingDb).where(sa.and_(MenRankingDb.periode == periode, 
+                    FIFACountryDb.country_code == MenRankingDb.country_code)).order_by(sa.asc(MenRankingDb.country_code))
+        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
+        ranking_schema = RankingSchema()
+        items = ranking_schema.load(results, many=True)
     elif len(params) == 2 and periode and country_name:
-        select_stmt = sa.select(FIFACountryDb)
+        select_stmt = sa.select(
+            FIFACountryDb.country_code,
+            FIFACountryDb.country_name,
+            FIFACountryDb.country_zone,
+            MenRankingDb.periode,
+            MenRankingDb.current_points,
+            MenRankingDb.prev_points,
+            MenRankingDb.current_rank,
+            MenRankingDb.prev_rank
+        ).select_from(FIFACountryDb)
         join_stmt = select_stmt.join(MenRankingDb).where(
                 sa.and_(
                         MenRankingDb.periode == periode,
@@ -37,10 +56,19 @@ def get_ranking():
                 )
         ).order_by(sa.asc(MenRankingDb.current_rank))
         results = db.session.execute(join_stmt).scalars().all()
-        country_schema = MenRankingSchema()
-        items = country_schema.dump(results, many=True)
+        ranking_schema = RankingSchema()
+        items = ranking_schema.load(results, many=True)
     elif len(params) == 2 and periode and country_code:
-        select_stmt = sa.select(FIFACountryDb)
+        select_stmt = sa.select(
+            FIFACountryDb.country_code,
+            FIFACountryDb.country_name,
+            FIFACountryDb.country_zone,
+            MenRankingDb.periode,
+            MenRankingDb.current_points,
+            MenRankingDb.prev_points,
+            MenRankingDb.current_rank,
+            MenRankingDb.prev_rank
+        ).select_from(FIFACountryDb)
         join_stmt = select_stmt.join(MenRankingDb).where(
                 sa.and_(
                         MenRankingDb.periode == periode,
@@ -48,10 +76,19 @@ def get_ranking():
                 )
         ).order_by(sa.asc(MenRankingDb.current_rank))
         results = db.session.execute(join_stmt).scalars().all()
-        country_schema = MenRankingSchema()
-        items = country_schema.dump(results, many=True)
+        ranking_schema = RankingSchema()
+        items = ranking_schema.load(results, many=True)
     elif len(params) == 2 and periode and country_zone:
-        select_stmt = sa.select(FIFACountryDb)
+        select_stmt = sa.select(
+            FIFACountryDb.country_code,
+            FIFACountryDb.country_name,
+            FIFACountryDb.country_zone,
+            MenRankingDb.periode,
+            MenRankingDb.current_points,
+            MenRankingDb.prev_points,
+            MenRankingDb.current_rank,
+            MenRankingDb.prev_rank
+        ).select_from(FIFACountryDb)
         join_stmt = select_stmt.join(MenRankingDb).where(
                 sa.and_(
                         MenRankingDb.periode == periode,
@@ -59,8 +96,8 @@ def get_ranking():
                 )
         ).order_by(sa.asc(MenRankingDb.current_rank))
         results = db.session.execute(join_stmt).scalars().all()
-        country_schema = MenRankingSchema()
-        items = country_schema.dump(results, many=True)
+        ranking_schema = RankingSchema()
+        items = ranking_schema.load(results, many=True)
     else:
         items = []
         
