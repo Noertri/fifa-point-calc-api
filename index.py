@@ -55,7 +55,7 @@ def get_ranking():
                         FIFACountryDb.country_name.like(f"%{country_name.lower()}%")
                 )
         ).order_by(sa.asc(MenRankingDb.current_rank))
-        results = db.session.execute(join_stmt).scalars().all()
+        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
         ranking_schema = RankingSchema()
         items = ranking_schema.load(results, many=True)
     elif len(params) == 2 and periode and country_code:
@@ -75,7 +75,7 @@ def get_ranking():
                         FIFACountryDb.country_code.like(f"%{country_code.lower()}%")
                 )
         ).order_by(sa.asc(MenRankingDb.current_rank))
-        results = db.session.execute(join_stmt).scalars().all()
+        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
         ranking_schema = RankingSchema()
         items = ranking_schema.load(results, many=True)
     elif len(params) == 2 and periode and country_zone:
@@ -95,7 +95,7 @@ def get_ranking():
                         FIFACountryDb.country_zone == country_zone.upper()
                 )
         ).order_by(sa.asc(MenRankingDb.current_rank))
-        results = db.session.execute(join_stmt).scalars().all()
+        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
         ranking_schema = RankingSchema()
         items = ranking_schema.load(results, many=True)
     else:
