@@ -1,10 +1,12 @@
 from http import HTTPStatus
 from flask import request, make_response, jsonify
 from marshmallow import ValidationError
+from functools import wraps
 
 
 def request_validator(schema):
     def decorator(f):
+        @wraps(f)
         def wrapper(*args, **kwargs):
             try:
                 params = request.args.to_dict()
