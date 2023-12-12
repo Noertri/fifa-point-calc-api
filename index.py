@@ -29,6 +29,7 @@ def get_ranking_men_all():
         MenRankingDb.current_rank,
         MenRankingDb.prev_rank
     ).select_from(FIFACountryDb)
+    
     join_stmt = select_stmt.join(MenRankingDb, FIFACountryDb.country_code == MenRankingDb.country_code).where(MenRankingDb.periode == periode).order_by(sa.asc(MenRankingDb.current_rank))
     results = [r._asdict() for r in db.session.execute(join_stmt).all()]
     
@@ -59,8 +60,8 @@ def get_ranking_men_by_code(country: str):
     params = request.args.to_dict()
     periode = params.get("periode")
 
-    if len(country) == 3:
-        select_stmt = sa.select(
+
+    select_stmt = sa.select(
             FIFACountryDb.country_code,
             FIFACountryDb.country_name,
             FIFACountryDb.country_zone,
@@ -70,6 +71,8 @@ def get_ranking_men_by_code(country: str):
             MenRankingDb.current_rank,
             MenRankingDb.prev_rank
         ).select_from(FIFACountryDb)
+    
+    if len(country) == 3:
         join_stmt = select_stmt.join(MenRankingDb, FIFACountryDb.country_code == MenRankingDb.country_code).where(
             sa.and_(MenRankingDb.periode == periode, FIFACountryDb.country_code.like(f"%{country.lower()}%"))
             ).order_by(sa.asc(MenRankingDb.current_rank))
@@ -86,16 +89,6 @@ def get_ranking_men_by_code(country: str):
         ranking_schema = RankingSchema()
         items = ranking_schema.load(results, many=True)
     elif len(country) > 3:
-        select_stmt = sa.select(
-            FIFACountryDb.country_code,
-            FIFACountryDb.country_name,
-            FIFACountryDb.country_zone,
-            MenRankingDb.periode,
-            MenRankingDb.current_points,
-            MenRankingDb.prev_points,
-            MenRankingDb.current_rank,
-            MenRankingDb.prev_rank
-        ).select_from(FIFACountryDb)
         join_stmt = select_stmt.join(MenRankingDb, FIFACountryDb.country_code == MenRankingDb.country_code).where(
             sa.and_(MenRankingDb.periode == periode, FIFACountryDb.country_name.like(f"%{country.lower()}%"))
             ).order_by(sa.asc(MenRankingDb.current_rank))
