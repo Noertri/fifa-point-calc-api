@@ -33,8 +33,11 @@ def get_ranking():
             MenRankingDb.current_rank,
             MenRankingDb.prev_rank
         ).select_from(FIFACountryDb)
-        join_stmt = select_stmt.join(MenRankingDb).where(sa.and_(MenRankingDb.periode == periode, 
-                    FIFACountryDb.country_code == MenRankingDb.country_code)).order_by(sa.asc(MenRankingDb.country_code))
+        join_stmt = select_stmt.join(MenRankingDb).where(
+            sa.and_(MenRankingDb.periode == periode, 
+                    FIFACountryDb.country_code == MenRankingDb.country_code, 
+                    sa.or_(MenRankingDb.current_rank != "null",
+                           MenRankingDb.current_rank != ""))).order_by(sa.asc(MenRankingDb.current_rank))
         results = [row._asdict() for row in db.session.execute(join_stmt).all()]
         ranking_schema = RankingSchema()
         items = ranking_schema.load(results, many=True)
