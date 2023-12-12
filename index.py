@@ -23,19 +23,9 @@ def get_ranking():
     country_zone = params.get("zone")
 
     if len(params) == 1 and periode:
-        select_stmt = sa.select(
-            FIFACountryDb.country_code,
-            FIFACountryDb.country_name,
-            FIFACountryDb.country_zone,
-            MenRankingDb.periode,
-            MenRankingDb.current_points,
-            MenRankingDb.prev_points,
-            MenRankingDb.current_rank,
-            MenRankingDb.prev_rank
-        ).select_from(FIFACountryDb)
-        join_stmt = select_stmt.join(MenRankingDb).where(
+        select_stmt = sa.select(FIFACountryDb)
+        join_stmt = select_stmt.join(MenRankingDb, FIFACountryDb.country_code == MenRankingDb.country_code).where(
             sa.and_(MenRankingDb.periode == periode, 
-                    FIFACountryDb.country_code == MenRankingDb.country_code, 
                     sa.or_(MenRankingDb.current_rank != "null",
                            MenRankingDb.current_rank != ""))).order_by(sa.asc(MenRankingDb.current_rank))
         results = [row._asdict() for row in db.session.execute(join_stmt).all()]
