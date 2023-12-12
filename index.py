@@ -17,21 +17,9 @@ ma.init_app(app)
 @request_validator(RequestSchema)
 def get_ranking():
     params = request.args.to_dict()
-    country_code = params.get("countryCode")
     periode = params.get("periode")
-    country_name = params.get("countryName")
-    country_zone = params.get("zone")
 
     if len(params) == 1 and periode:
-        select_stmt = sa.select(FIFACountryDb)
-        join_stmt = select_stmt.join(MenRankingDb, FIFACountryDb.country_code == MenRankingDb.country_code).where(
-            sa.and_(MenRankingDb.periode == periode, 
-                    sa.or_(MenRankingDb.current_rank != "null",
-                           MenRankingDb.current_rank != ""))).order_by(sa.asc(MenRankingDb.current_rank))
-        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
-        ranking_schema = RankingSchema()
-        items = ranking_schema.load(results, many=True)
-    elif len(params) == 2 and periode and country_name:
         select_stmt = sa.select(
             FIFACountryDb.country_code,
             FIFACountryDb.country_name,
@@ -42,53 +30,17 @@ def get_ranking():
             MenRankingDb.current_rank,
             MenRankingDb.prev_rank
         ).select_from(FIFACountryDb)
-        join_stmt = select_stmt.join(MenRankingDb).where(
-                sa.and_(
-                        MenRankingDb.periode == periode,
-                        FIFACountryDb.country_name.like(f"%{country_name.lower()}%")
-                )
-        ).order_by(sa.asc(MenRankingDb.current_rank))
-        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
-        ranking_schema = RankingSchema()
-        items = ranking_schema.load(results, many=True)
-    elif len(params) == 2 and periode and country_code:
-        select_stmt = sa.select(
-            FIFACountryDb.country_code,
-            FIFACountryDb.country_name,
-            FIFACountryDb.country_zone,
-            MenRankingDb.periode,
-            MenRankingDb.current_points,
-            MenRankingDb.prev_points,
-            MenRankingDb.current_rank,
-            MenRankingDb.prev_rank
-        ).select_from(FIFACountryDb)
-        join_stmt = select_stmt.join(MenRankingDb).where(
-                sa.and_(
-                        MenRankingDb.periode == periode,
-                        FIFACountryDb.country_code.like(f"%{country_code.lower()}%")
-                )
-        ).order_by(sa.asc(MenRankingDb.current_rank))
-        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
-        ranking_schema = RankingSchema()
-        items = ranking_schema.load(results, many=True)
-    elif len(params) == 2 and periode and country_zone:
-        select_stmt = sa.select(
-            FIFACountryDb.country_code,
-            FIFACountryDb.country_name,
-            FIFACountryDb.country_zone,
-            MenRankingDb.periode,
-            MenRankingDb.current_points,
-            MenRankingDb.prev_points,
-            MenRankingDb.current_rank,
-            MenRankingDb.prev_rank
-        ).select_from(FIFACountryDb)
-        join_stmt = select_stmt.join(MenRankingDb).where(
-                sa.and_(
-                        MenRankingDb.periode == periode,
-                        FIFACountryDb.country_zone == country_zone.upper()
-                )
-        ).order_by(sa.asc(MenRankingDb.current_rank))
-        results = [row._asdict() for row in db.session.execute(join_stmt).all()]
+        join_stmt = select_stmt.join(MenRankingDb, FIFACountryDb.country_code == MenRankingDb.country_code).where(MenRankingDb.periode == periode).order_by(sa.asc(MenRankingDb.current_rank))
+        results = [r._asdict() for r in db.session.execute(join_stmt).all()]
+        
+        none_ranks = []
+        for i, data in enumerate(results):
+            if data.get("current_rank") is None:
+                pop_item = results.pop(i)
+                none_ranks.insert(-1, pop_item)
+
+        results.extend(none_ranks)
+
         ranking_schema = RankingSchema()
         items = ranking_schema.load(results, many=True)
     else:
@@ -105,4 +57,4 @@ def get_ranking():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=5506)

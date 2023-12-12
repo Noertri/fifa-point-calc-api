@@ -10,7 +10,7 @@ class FIFACountryDb(db.Model):
     country_code = mapped_column(Text)
     country_name = mapped_column(Text)
     country_zone = mapped_column(Text)
-    men_rank_data = relationship("MenRankingDb", back_populates="country_data")
+    # men_rank_data = relationship("MenRankingDb")
     UniqueConstraint(country_code, country_name)
     
 
@@ -23,5 +23,4 @@ class MenRankingDb(db.Model):
     prev_rank = mapped_column(Integer)
     current_points = mapped_column(REAL)
     prev_points = mapped_column(REAL)
-    country_data = relationship("FIFACountryDb", back_populates="men_rank_data")
     UniqueConstraint(periode, country_code)
