@@ -305,8 +305,9 @@ pyrightconfig.json
 .history
 .ionide
 
-sql_scripts/*
+sql_scripts/
 *.bak
 logs/
 backup/
+migration.py
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,visualstudiocode
